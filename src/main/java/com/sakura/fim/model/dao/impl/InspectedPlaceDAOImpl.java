@@ -19,7 +19,7 @@ import com.sakura.fim.model.InspectedPlace;
 import com.sakura.fim.model.dao.InspectedPlaceDAO;
 
 @Repository
-public class InspectedPlaceDAOImpl implements InspectedPlaceDAO {
+public class InspectedPlaceDAO Impl implements InspectedPlaceDAO {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(InspectedPlaceDAOImpl.class.getName());
 
