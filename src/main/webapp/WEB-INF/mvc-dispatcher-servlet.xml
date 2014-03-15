@@ -32,8 +32,9 @@
 	<!-- Property files configuration -->
 	<context:property-placeholder location="classpath:/foodinspection.properties"  ignore-unresolvable="true"/>
 	
-	<context:property-placeholder location="classpath:/database.properties" order="1" ignore-unresolvable="true"/>
-	<context:property-placeholder location="classpath:/default.database.properties" order="2" ignore-unresolvable="true"/>
+	<context:property-placeholder location="classpath:/database.properties" order="2" ignore-unresolvable="true"/>
+	<context:property-placeholder location="classpath:/default.database.properties" order="1" ignore-unresolvable="true"
+		ignore-resource-not-found="true" />
 
 	<!-- DB configuration -->
 	<mongo:mongo id="aMongo" host="${mongo.db.host}" port="${mongo.db.port}" />
