@@ -30,20 +30,14 @@
 	<task:scheduler id="myScheduler" pool-size="1" />
 
 	<!-- Property files configuration -->
-	<bean id="propertyConfigurer"
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="locations">
-			<list>
-				<value>classpath:database.properties</value>
-				<value>classpath:foodinspection.properties</value>
-			</list>
-		</property>
-		<property name="ignoreUnresolvablePlaceholders" value="true" />
-	</bean>
+	<context:property-placeholder location="classpath:/foodinspection.properties"  ignore-unresolvable="true"/>
+	
+	<context:property-placeholder location="classpath:/database.properties" order="1" ignore-unresolvable="true"/>
+	<context:property-placeholder location="classpath:/default.database.properties" order="2" ignore-unresolvable="true"/>
 
 	<!-- DB configuration -->
 	<mongo:mongo id="aMongo" host="${mongo.db.host}" port="${mongo.db.port}" />
-	<mongo:db-factory dbname="${mongo.db.name}" id="aMongoDbFactory"
+	<mongo:db-factory dbname="${mongo.db.name}" id="aMongoDbFactory" 
 		username="${mongo.db.username}" password="${mongo.db.password}"
 		mongo-ref="aMongo" />
 
