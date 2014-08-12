@@ -23,7 +23,9 @@ public interface InspectedPlaceDAO {
      * @param params
      * @return
      */
-    List<InspectedPlace> query(Map<String, String> params);
+    List<InspectedPlace> query(Map<String, Object> params);
+    
+    List<InspectedPlace> findByVersion(Integer versionNumber);
 
     /**
      * Returns a list with all inspected places
@@ -41,7 +43,7 @@ public interface InspectedPlaceDAO {
      * @param params
      * @return
      */
-    List<InspectedPlace> queryInDateRange(Map<String, String> params, Date startDate, Date endDate);
+    List<InspectedPlace> queryInDateRange(Map<String, Object> params, Date startDate, Date endDate);
 
     /**
      * Returns all distinct entries of a field in a collection
@@ -49,4 +51,11 @@ public interface InspectedPlaceDAO {
      * @return
      */
     List<String> getDistinct(String attribute);
+    
+    /**
+     * getMax collection version
+     * @param attribute
+     * @return
+     */
+    Integer getMaxVersion();
 }

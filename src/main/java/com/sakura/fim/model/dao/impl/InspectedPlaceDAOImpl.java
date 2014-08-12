@@ -1,6 +1,7 @@
 package com.sakura.fim.model.dao.impl;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -25,14 +27,14 @@ public class InspectedPlaceDAOImpl implements InspectedPlaceDAO {
 
     @Autowired
     private MongoOperations mongoOp;
-    
+
     private DBCollection inspectedPlaces;
 
     @PostConstruct
-    private void init(){
+    private void init() {
         inspectedPlaces = mongoOp.getCollection("inspectedPlace");
     }
-    
+
     @Override
     public void store(InspectedPlace inspectedPlace) {
         if (inspectedPlace != null) {
@@ -44,13 +46,12 @@ public class InspectedPlaceDAOImpl implements InspectedPlaceDAO {
     }
 
     @Override
-    public List<InspectedPlace> queryInDateRange(Map<String, String> params, Date startDate, Date endDate) {
+    public List<InspectedPlace> queryInDateRange(Map<String, Object> params, Date startDate, Date endDate) {
         LOGGER.debug(String.format("Querying inspections in dateRange: %s, %s.", startDate, endDate));
         Query query = new Query();
-        query.addCriteria(new Criteria().
-                andOperator(Criteria.where("infractionDate").lte(endDate), 
+        query.addCriteria(new Criteria().andOperator(Criteria.where("infractionDate").lte(endDate),
                 Criteria.where("infractionDate").gte(startDate)));
-        for (Map.Entry<String, String> entry : params.entrySet()) {
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
             query.addCriteria(Criteria.where(entry.getKey()).is(entry.getValue()));
             LOGGER.debug(String.format("With criteria: %s = %s", entry.getKey(), entry.getValue()));
         }
@@ -58,16 +59,16 @@ public class InspectedPlaceDAOImpl implements InspectedPlaceDAO {
     }
 
     @Override
-    public List<InspectedPlace> query(Map<String, String> params) {
+    public List<InspectedPlace> query(Map<String, Object> params) {
         LOGGER.debug("Querying inspections");
         Query query = new Query();
-        for (Map.Entry<String, String> entry : params.entrySet()) {
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
             query.addCriteria(Criteria.where(entry.getKey()).is(entry.getValue()));
             LOGGER.debug(String.format("With criteria: %s = %s", entry.getKey(), entry.getValue()));
         }
         return mongoOp.find(query, InspectedPlace.class);
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public List<String> getDistinct(String attribute) {
@@ -86,5 +87,23 @@ public class InspectedPlaceDAOImpl implements InspectedPlaceDAO {
         LOGGER.warn("REMOVING ALL INSPECTED PLACES FROM COLLECTION");
         Query query = new Query();
         mongoOp.remove(query, InspectedPlace.class);
+    }
+
+    @Override
+    public Integer getMaxVersion() {
+        LOGGER.debug(String.format("Getting max version for inspectedPlace collection"));
+        Query query = new Query();
+        query.with(new Sort(Sort.Direction.DESC, "version")).limit(1);
+        InspectedPlace inspectedPlace = mongoOp.findOne(query, InspectedPlace.class);
+        Integer maxVersion = inspectedPlace != null  && inspectedPlace.getVersion() != null ? inspectedPlace.getVersion() : 1;
+        LOGGER.debug(String.format("InspectedPlace current max version is : %d", maxVersion));
+        return maxVersion;
+    }
+
+    @Override
+    public List<InspectedPlace> findByVersion(Integer versionNumber) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("version", versionNumber);
+        return query(params);
     }
 }

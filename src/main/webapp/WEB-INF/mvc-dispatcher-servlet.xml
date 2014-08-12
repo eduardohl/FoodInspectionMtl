@@ -11,7 +11,8 @@
         http://www.springframework.org/schema/task
         http://www.springframework.org/schema/task/spring-task-3.0.xsd
         http://www.springframework.org/schema/mvc
-        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd"
+     profile="dev">
 
 	<!-- Component scan and MVC setup -->
 	<context:component-scan base-package="com.sakura.fim" />
@@ -23,6 +24,22 @@
 		<property name="suffix" value=".jsp" />
 	</bean>
 
+    <!-- Email setup -->
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${smtp.server.host}" />
+        <property name="port" value="${smtp.server.port}" />
+        <property name="protocol" value="${smtp.server.protocol}" />
+        <property name="username" value="${smtp.server.login}" />
+        <property name="password" value="${smtp.server.passwd}" />
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.smtps.auth">true</prop>
+                <prop key="mail.smtp.ssl.enable">true</prop>
+                <prop key="mail.transport.protocol">${smtp.server.protocol}</prop>
+            </props>
+        </property>
+    </bean>
+
 	<!-- Scheduler setup -->
 	<task:annotation-driven executor="myExecutor"
 		scheduler="myScheduler" />
@@ -30,8 +47,9 @@
 	<task:scheduler id="myScheduler" pool-size="1" />
 
 	<!-- Property files configuration -->
-	<context:property-placeholder location="classpath:/foodinspection.properties"  ignore-unresolvable="true"/>
-	<context:property-placeholder location="classpath:/database.properties" ignore-unresolvable="true" system-properties-mode="OVERRIDE"/>
+	<context:property-placeholder location="classpath:/foodinspection_${spring.profiles.active}.properties"  ignore-unresolvable="true"  />
+	<context:property-placeholder location="classpath:/database_${spring.profiles.active}.properties" ignore-unresolvable="true" system-properties-mode="OVERRIDE"/>
+	<context:property-placeholder location="classpath:/email_${spring.profiles.active}.properties" ignore-unresolvable="true" system-properties-mode="OVERRIDE"/>
 
 	<!-- DB configuration -->
 	<mongo:mongo id="aMongo" host="${mongo.db.host}" port="${mongo.db.port}" />
